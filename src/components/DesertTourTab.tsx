@@ -8,7 +8,7 @@ import data from "@/data/desertTour.json";
 import { GUIDE } from "@/data/guide";
 import { toggleChecklistItem } from "@/lib/trip";
 import type { TripState } from "@/lib/types";
-import { AddOnList, HowToBox } from "./HowToBox";
+import { AddOnList, CopyBlock, HowToBox } from "./HowToBox";
 import { activityPhoto, desertPhoto, Photo } from "./Photo";
 import { btn, card } from "./ui";
 
@@ -45,6 +45,21 @@ interface Vendor {
   pros: string[];
   cons: string[];
   note?: string;
+  /** 현지 업체: 카톡 ID·채널, 2026 후기 수와 링크 (광고·협찬은 라벨에 표시) */
+  kakao?: string;
+  reviewCount?: number;
+  reviewLinks?: LinkItem[];
+}
+
+interface LocalBriefing {
+  intro: string;
+  recommendation: string;
+  kakaoMessage: string;
+  vendors: Vendor[];
+  /** 2026 후기를 못 찾은 곳 (한 줄씩) */
+  noReviews?: { name: string; note: string }[];
+  /** 차만 빌리고 지프는 현장에서 */
+  diy?: { summary: string; carCost: string; jeepCost: string; howTo: string[]; risks: string[] };
 }
 
 interface Briefing {
@@ -52,7 +67,7 @@ interface Briefing {
   status: string;
   deadlines: { date: string; text: string }[];
   conditions: { label: string; value: string }[];
-  verdict: { title: string; why: string[]; backup: string };
+  verdict: { title: string; why: string[]; backup: string; /** 가성비 선택지 (현지 업체) */ alt?: string };
   vendors: Vendor[];
   others: string;
   ask: string[];
@@ -63,6 +78,21 @@ interface Briefing {
   /** 아이 동반 오전 투어 모습이 잘 보이는 후기 */
   sceneLinks?: LinkItem[];
   route?: LinkItem;
+  /** 카톡으로 직접 예약하는 현지 업체 */
+  local?: LocalBriefing;
+  /** 업체를 정하면 일정 탭에서 고르라는 안내 */
+  scheduleNote?: string;
+  weather?: {
+    snapshot: string;
+    plan: string[];
+    policies: string[];
+    checkpoints: { date: string; text: string }[];
+    sources: string;
+  };
+  /** 이럴 땐 (기사 안 옴 · 짐 · 아이 · 바람) */
+  cases?: { title: string; steps: string[] }[];
+  /** 10/5(월) 밤에 할 일 */
+  nightBefore?: string[];
 }
 
 const B = data as Briefing;
@@ -94,6 +124,9 @@ export default function DesertTourTab({
             ))}
           </ul>
           <p className="mt-3 rounded-2xl bg-surface-2 p-3 text-[14px] leading-relaxed text-ink-2">🔁 {B.verdict.backup}</p>
+          {B.verdict.alt && (
+            <p className="mt-2 rounded-2xl bg-primary-soft p-3 text-[14px] leading-relaxed text-ink">{B.verdict.alt}</p>
+          )}
 
           {check && (
             <label className="press mt-4 flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl bg-primary-soft px-4">
@@ -163,11 +196,15 @@ export default function DesertTourTab({
       {/* 업체 비교 */}
       <section className="space-y-3">
         <h3 className="px-1 text-[19px] font-bold tracking-tight">🔍 업체 비교 ({B.vendors.length}곳)</h3>
+        {B.scheduleNote && <p className="px-1 text-[13px] leading-relaxed text-primary-ink">📅 {B.scheduleNote}</p>}
         {B.vendors.map((v) => (
           <VendorCard key={v.id} v={v} />
         ))}
         {B.others && <p className="px-1 text-[13px] leading-relaxed text-ink-3">{B.others}</p>}
       </section>
+
+      {/* 현지 업체 (카톡 직접 예약) */}
+      {B.local && <LocalSection local={B.local} />}
 
       {/* 1순위 예약 방법 */}
       {DESERT?.howTo && (
@@ -186,6 +223,47 @@ export default function DesertTourTab({
           ))}
         </ol>
       </section>
+
+      {/* 날씨 · 비 오면 */}
+      {B.weather && (
+        <section className={`${card} p-5`}>
+          <h3 className="text-[17px] font-bold">☔ 날씨 · 비 오면</h3>
+          <p className="mt-2 rounded-2xl bg-primary-soft p-3 text-[14px] leading-relaxed text-ink">🌤️ {B.weather.snapshot}</p>
+          <ul className="mt-3 space-y-1.5 text-[14px] leading-relaxed text-ink">
+            {B.weather.plan.map((t) => (
+              <li key={t}>• {t}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[14px] font-bold text-ink-2">업체별 비 올 때</p>
+          <ul className="mt-1 space-y-1.5 text-[13px] leading-relaxed text-ink-2">
+            {B.weather.policies.map((t) => (
+              <li key={t}>• {t}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[14px] font-bold text-ink-2">언제 확인할까</p>
+          <ol className="mt-1 space-y-1.5">
+            {B.weather.checkpoints.map((c) => (
+              <li key={c.date} className="flex gap-3 text-[13px] leading-snug">
+                <span className="w-20 shrink-0 font-bold text-accent">{c.date}</span>
+                <span className="min-w-0 text-ink">{c.text}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-2 text-[12px] text-ink-4">{B.weather.sources}</p>
+        </section>
+      )}
+
+      {/* 10/5 밤 체크리스트 */}
+      {B.nightBefore && B.nightBefore.length > 0 && (
+        <section className={`${card} p-5`}>
+          <h3 className="text-[17px] font-bold">🌙 10/5(월) 밤 체크리스트</h3>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[14px] leading-relaxed text-ink">
+            {B.nightBefore.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {/* 당일 동선 (일정 탭과 같은 데이터) */}
       {day && (
@@ -206,6 +284,25 @@ export default function DesertTourTab({
                 </li>
               ))}
           </ol>
+        </section>
+      )}
+
+      {/* 이럴 땐 */}
+      {B.cases && B.cases.length > 0 && (
+        <section className={`${card} p-5`}>
+          <h3 className="text-[17px] font-bold">🚨 이럴 땐</h3>
+          <div className="mt-2 space-y-2">
+            {B.cases.map((c) => (
+              <details key={c.title} className="rounded-2xl bg-surface-2 px-4 py-3">
+                <summary className="cursor-pointer text-[15px] font-bold text-ink">{c.title}</summary>
+                <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[14px] leading-relaxed text-ink">
+                  {c.steps.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ol>
+              </details>
+            ))}
+          </div>
         </section>
       )}
 
@@ -255,8 +352,84 @@ function LinkList({ title, links }: { title: string; links: LinkItem[] }) {
   );
 }
 
-function VendorCard({ v }: { v: Vendor }) {
-  const [open, setOpen] = useState(v.rank === 1);
+/** 긴 설명을 폰에서 읽기 쉽게 문장 단위로 나눈다 (~요. 끝에서) */
+const sentences = (text: string) =>
+  text
+    .split(/(?<=요\.)\s+/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+/** 카톡으로 직접 예약하는 현지 업체 — 후기 많은 순서, 그대로 보낼 카톡 문구, 차만 빌리는 방법 */
+function LocalSection({ local }: { local: LocalBriefing }) {
+  return (
+    <section className="space-y-3">
+      <h3 className="px-1 text-[19px] font-bold tracking-tight">🚐 현지 업체 · 카톡 직접 예약 ({local.vendors.length}곳)</h3>
+      <div className={`${card} p-5`}>
+        <ul className="space-y-1.5 text-[14px] leading-relaxed text-ink">
+          {sentences(local.intro).map((t) => (
+            <li key={t}>• {t}</li>
+          ))}
+        </ul>
+        <div className="mt-3 rounded-2xl bg-primary-soft p-3">
+          <p className="text-[14px] font-bold text-primary-ink">👍 추천</p>
+          <ul className="mt-1 space-y-1.5 text-[14px] leading-relaxed text-ink">
+            {sentences(local.recommendation).map((t) => (
+              <li key={t}>• {t}</li>
+            ))}
+          </ul>
+        </div>
+        {local.kakaoMessage && <CopyBlock label="💬 현지 업체에 보낼 카톡 문구 (복사)" text={local.kakaoMessage} />}
+      </div>
+      {local.vendors.map((v, i) => (
+        <VendorCard key={v.id} v={v} badge={`현지 ${i + 1}`} defaultOpen={false} />
+      ))}
+      {local.noReviews && local.noReviews.length > 0 && (
+        <div className={`${card} p-5`}>
+          <p className="text-[14px] font-bold text-ink-2">🤔 2026 후기를 못 찾은 곳</p>
+          <ul className="mt-1.5 space-y-1 text-[13px] leading-relaxed text-ink-2">
+            {local.noReviews.map((n) => (
+              <li key={n.name}>
+                <b className="text-ink">{n.name}</b> — {n.note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {local.diy && (
+        <details className={`${card} p-5`}>
+          <summary className="cursor-pointer text-[15px] font-bold text-ink">🚗 차만 빌리고 지프는 현장에서 (직접 하기)</summary>
+          <p className="mt-2 text-[14px] leading-relaxed text-ink">{local.diy.summary}</p>
+          <dl className="mt-2 divide-y divide-line rounded-2xl bg-surface-2 px-3">
+            {(
+              [
+                ["차", local.diy.carCost],
+                ["지프", local.diy.jeepCost],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label} className="flex gap-3 py-2 text-[13px] leading-snug">
+                <dt className="w-10 shrink-0 font-semibold text-ink-3">{label}</dt>
+                <dd className="min-w-0 text-ink">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-[13px] leading-relaxed text-ink">
+            {local.diy.howTo.map((h) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ol>
+          <ul className="mt-2 rounded-2xl bg-accent-soft p-3 text-[13px] leading-relaxed text-ink">
+            {local.diy.risks.map((r) => (
+              <li key={r}>⚠️ {r}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+  );
+}
+
+function VendorCard({ v, badge, defaultOpen }: { v: Vendor; badge?: string; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? v.rank === 1);
   const rows: [string, string | undefined][] = [
     ["차량", v.vehicle],
     ["짐", v.luggage],
@@ -270,13 +443,16 @@ function VendorCard({ v }: { v: Vendor }) {
     ["결제", v.payment],
     ["평점", v.rating],
     ["최근 후기", v.reviews],
+    ["카톡", v.kakao],
   ];
+  const top = !badge && v.rank === 1;
   return (
-    <article className={`${card} p-5 ${v.rank === 1 ? "ring-2 ring-accent" : ""}`}>
+    <article className={`${card} p-5 ${top ? "ring-2 ring-accent" : ""}`}>
       <div className="flex flex-wrap items-center gap-2 text-[13px] font-bold">
-        <span className={`rounded-lg px-2 py-0.5 ${v.rank === 1 ? "bg-accent text-white" : "bg-primary-soft text-primary-ink"}`}>
-          {v.rank === 1 ? "1순위" : `${v.rank}순위`}
+        <span className={`rounded-lg px-2 py-0.5 ${top ? "bg-accent text-white" : "bg-primary-soft text-primary-ink"}`}>
+          {badge ?? `${v.rank}순위`}
         </span>
+        {v.reviewCount !== undefined && <span className="text-ink-3">· 2026 후기 {v.reviewCount}개</span>}
         <span className="text-ink-3">{v.platform}</span>
       </div>
       <h4 className="mt-1.5 text-[19px] leading-snug font-bold tracking-tight">{v.name}</h4>
@@ -330,6 +506,7 @@ function VendorCard({ v }: { v: Vendor }) {
               </ol>
             </div>
           )}
+          {v.reviewLinks && v.reviewLinks.length > 0 && <LinkList title="📝 후기 보기 (광고·협찬은 표시)" links={v.reviewLinks} />}
           {v.photoLinks && v.photoLinks.length > 0 && <LinkList title="📷 실제 사진 보기 (차량·지프·썰매)" links={v.photoLinks} />}
         </>
       )}
