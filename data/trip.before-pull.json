@@ -849,13 +849,13 @@
     },
     {
       "id": "bk-family-cert-en",
-      "text": "10/2 영문 가족관계증명서 — 아이 이름으로 2장 인쇄 (efamily · PC로 · 부모 이름으로 뽑으면 아이가 안 나와요)",
+      "text": "영문 가족관계증명서 — 아이 이름으로 2장 인쇄 (efamily · PC로 · 부모 이름으로 뽑으면 아이가 안 나와요)",
       "group": "서류",
       "checked": false
     },
     {
       "id": "bk-vn-pai",
-      "text": "10/2 베트남 사전 입국신고(PAI) 3명 — QR 3개 저장 (prearrival.immigration.gov.vn · 무료 · 10/2까지)",
+      "text": "베트남 사전 입국신고(PAI) 3명 — QR 3개 저장 (prearrival.immigration.gov.vn · 무료 · 10/2까지)",
       "group": "서류",
       "checked": false
     },
