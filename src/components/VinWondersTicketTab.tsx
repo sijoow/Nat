@@ -68,10 +68,27 @@ interface ProductGuide {
   notSold: string[];
 }
 
+interface Alternative {
+  id: string;
+  name: string;
+  time: string;
+  cost: string;
+  costDetail: string;
+  kid: string;
+  /** 조심할 점 */
+  watch: string;
+  deadline: string;
+  url: string;
+  /** 추천 */
+  pick: boolean;
+}
+
 interface TicketBriefing {
   checkedAt: string;
   summary: string;
   recommendation: string;
+  /** 빈원더스 대신 갈 곳 (10/5 비교) */
+  alternatives: { title: string; note: string; rows: Alternative[]; verdict: string };
   /** 어떤 상품을 살까 (10/5 공식 판매 상품 비교) */
   products: ProductGuide;
   /** 우리 상황 (어른 2장 미리 · 아이는 현장 판정) */
@@ -121,6 +138,8 @@ export default function VinWondersTicketTab({
           )}
         </div>
       </section>
+
+      <AlternativesSection a={T.alternatives} />
 
       <PickSection g={T.products} url={officialUrl} />
 
@@ -205,6 +224,51 @@ export default function VinWondersTicketTab({
         {T.checkedAt} 기준 · {T.sources}
       </p>
     </div>
+  );
+}
+
+/** 🔁 빈원더스 대신 갈 곳 — 10/5 대안 코스 가격·아이·마감 비교 (접어 두고 펼쳐 봐요) */
+function AlternativesSection({ a }: { a: TicketBriefing["alternatives"] }) {
+  return (
+    <details className={`${card} p-5`}>
+      <summary className="cursor-pointer text-[17px] font-bold">🔁 {a.title}</summary>
+      <p className="mt-2 rounded-2xl bg-primary-soft p-3 text-[14px] leading-relaxed font-semibold text-primary-ink">{a.verdict}</p>
+      <ul className="mt-3 space-y-3">
+        {a.rows.map((r) => (
+          <li key={r.id} className={`rounded-2xl p-4 ${r.pick ? "ring-2 ring-accent" : "bg-surface-2"}`}>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <span className="text-[16px] font-bold text-ink">
+                {r.pick && <span className="mr-1.5 rounded-md bg-accent px-1.5 py-0.5 text-[11px] text-white">추천</span>}
+                {r.name}
+              </span>
+              <span className="text-[16px] font-bold text-primary-ink tabular-nums">{r.cost}</span>
+            </div>
+            <dl className="mt-2 space-y-1.5 text-[13px] leading-relaxed">
+              {(
+                [
+                  ["⏰", r.time],
+                  ["💵", r.costDetail],
+                  ["🧒", r.kid],
+                  ["⚠️", r.watch],
+                  ["📅", r.deadline],
+                ] as const
+              ).map(([icon, text]) => (
+                <div key={icon} className="flex gap-2">
+                  <dt className="shrink-0">{icon}</dt>
+                  <dd className="min-w-0 text-ink-2">{text}</dd>
+                </div>
+              ))}
+            </dl>
+            {r.url && (
+              <a className="mt-2 inline-block text-[13px] font-semibold text-primary-ink underline" href={r.url} target="_blank" rel="noopener noreferrer">
+                상품·요금 보기 ↗
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[12px] leading-relaxed text-ink-4">{a.note}</p>
+    </details>
   );
 }
 
