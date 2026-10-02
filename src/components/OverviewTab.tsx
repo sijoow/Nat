@@ -6,7 +6,7 @@ import { getPlan } from "@/lib/plans";
 import BookingsCard from "./BookingsCard";
 import { getDayProgress, percent, type Progress } from "@/lib/trip";
 import type { Flight, TripState } from "@/lib/types";
-import { activityPhoto, dayPhoto, dishPhoto, heroPhoto, placePhoto, refPhoto, stayPhoto, type PhotoInfo } from "./Photo";
+import { activityPhoto, dayPhoto, dishPhoto, groupPhoto, heroPhoto, placePhoto, refPhoto, stayPhoto, type PhotoInfo } from "./Photo";
 import { card } from "./ui";
 
 interface Props {
@@ -19,12 +19,28 @@ interface Props {
   update: (fn: (s: TripState) => TripState) => void;
 }
 
-export type GoTab = "desert" | "vintickets" | "kids" | "stays" | "tours" | "food" | "spa" | "map" | "weather" | "schedule";
+export type GoTab =
+  | "desert"
+  | "vintickets"
+  | "kids"
+  | "dam"
+  | "souvenir"
+  | "pharmacy"
+  | "stays"
+  | "tours"
+  | "food"
+  | "spa"
+  | "map"
+  | "weather"
+  | "schedule";
 
 const SHORTCUTS: { tab: GoTab; label: string; desc: string; photo: () => PhotoInfo | undefined }[] = [
   { tab: "desert", label: "사막투어 (확정)", desc: "HT나트랑 · 당일 안내", photo: () => activityPhoto("phan-rang-desert") },
   { tab: "vintickets", label: "빈원더스 티켓", desc: "구매처 비교·아이 표", photo: () => placePhoto("vinwonders") },
   { tab: "kids", label: "아이랑 갈 곳", desc: "추천·가격·예약", photo: () => refPhoto("kids:capybara") ?? placePhoto("city-hotel-area") },
+  { tab: "dam", label: "담시장", desc: "층별 안내·시세표", photo: () => refPhoto("dam:hero") ?? placePhoto("dam-market") },
+  { tab: "souvenir", label: "기념품", desc: "사진·산 것 체크", photo: () => groupPhoto("견과·건과일") },
+  { tab: "pharmacy", label: "약국 쇼핑", desc: "인기템·아이 주의", photo: () => refPhoto("pharmacy:hero") ?? groupPhoto("생활·뷰티") },
   { tab: "stays", label: "숙소", desc: "확정 숙소 3곳", photo: () => stayPhoto("movenpick-cam-ranh") ?? placePhoto("cam-ranh-resort-area") },
   { tab: "tours", label: "투어·쇼핑", desc: "가격·예약", photo: () => placePhoto("vinwonders") },
   { tab: "food", label: "맛집", desc: "한국인 인기 맛집", photo: () => dishPhoto("소고기 쌀국수 (Phở bò)") ?? placePhoto("pho-hong") },

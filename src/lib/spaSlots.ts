@@ -289,7 +289,7 @@ const dadFoot = (title: string, memo: string) => ({
   time: "15:05",
   title,
   category: "rest" as const,
-  memo: `${memo} · 아빠와 아이가 먼저 끝나면(30~40분) 엄마 끝날 때까지 근처 카페·산책`,
+  memo: `${memo} · 아빠와 아이가 먼저 끝나면(30~40분) 15:40 반미판·CCCP 커피에서 엄마 기다리기`,
 });
 const nailMessage = (head: string, mom: string, kid: string, dad: string, extra: string[]) =>
   [
@@ -307,14 +307,14 @@ const nailMessage = (head: string, mom: string, kid: string, dad: string, extra:
 const MOM_KID_NAIL: ChoiceSlot = {
   date: "2026-10-04",
   from: "14:40",
-  to: "16:59",
+  to: "15:29",
   noun: "네일샵",
   options: [
     {
       id: "white-spa-nail-nhatrang",
       card: { kind: "spa", id: "white-spa-nail-nhatrang" },
       tab: "화이트",
-      when: "10/4(일) 15:00 예약 확정 · 마사지·점심 뒤 14:40 그랩 → 엄마 손(아트 무제한)·페디 동시에 + 아이 키즈젤 + 아빠 발각질 → 17:00 걸어서 저녁",
+      when: "10/4(일) 15:00 예약 확정 · 마사지·점심 뒤 14:40 그랩 → 엄마 손(아트 무제한)·페디 동시에 + 아이 키즈젤 + 아빠 발각질 → 먼저 끝난 아빠·아이는 CCCP 커피 → 17:15 저녁",
       total: "136만~161만동 (약 7.1만~8.4만원) · 엄마 손 아트 무제한 55만 + 페디 30만(원컬러)~55만(아트 무제한) + 아이 28만 + 아빠 발각질 23만 · 팁 포함 · 예약금 건당 10만동(손·발 따로, 원화 입금)",
       // 가게가 카톡으로 보내 준 예약 양식 그대로 (2026-10-02, 15:00 확정)
       message: [
