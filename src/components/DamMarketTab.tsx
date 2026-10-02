@@ -31,10 +31,14 @@ interface DamData {
   visit: string;
   basics: { topic: string; icon?: string; text: string }[];
   layout: { building: string; floor: string; what: string; tips?: string | null }[];
+  /** 층별 안내 아래 메모 (어디가 비싼지, 후기가 엇갈리는 곳) */
+  layoutNotes?: { title: string; text: string }[];
   shops: { id: string; name: string; number: string | null; where: string; what: string; prices?: string | null; why?: string | null }[];
   prices: { category: string; item: string; ask: string | null; paid: string; unit: string | null; date: string; source: string }[];
   bargaining: string[];
   scams: string[];
+  /** 담시장에서는 안 사는 게 나은 것 */
+  avoid?: string[];
   withKids: string[];
   nearby: { id: string; name: string; kind: string; what: string; walk: string | null; lat: number | null; lng: number | null }[];
   photos: string[];
@@ -152,6 +156,16 @@ export default function DamMarketTab({ onGo }: { onGo: (tab: GoTab) => void }) {
         <section>
           <H id="layout">층별 안내</H>
           <FloorGuide layout={D.layout} />
+          {D.layoutNotes && D.layoutNotes.length > 0 && (
+            <div className="mt-3 grid grid-cols-1 items-start gap-3 md:grid-cols-2">
+              {D.layoutNotes.map((n) => (
+                <div key={n.title} className="rounded-3xl bg-surface-2 p-4">
+                  <p className="text-[15px] font-bold text-ink">💬 {n.title}</p>
+                  <p className="mt-1 text-[14px] leading-relaxed text-ink-2">{n.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
@@ -222,6 +236,16 @@ export default function DamMarketTab({ onGo }: { onGo: (tab: GoTab) => void }) {
                 ))}
               </ul>
               {DAM_SHOP.phraseNote && <p className="mt-2 text-[13px] leading-relaxed text-ink-3">{DAM_SHOP.phraseNote}</p>}
+            </div>
+          )}
+          {D.avoid && D.avoid.length > 0 && (
+            <div className={`${card} p-5 lg:col-span-2`}>
+              <p className="text-[16px] font-bold">🙅 담시장에선 안 사는 게 나은 것</p>
+              <ul className="mt-2 space-y-1.5 text-[14px] leading-relaxed text-ink-2">
+                {D.avoid.map((t, i) => (
+                  <li key={i}>• {t}</li>
+                ))}
+              </ul>
             </div>
           )}
           {D.scams.length > 0 && (
@@ -299,8 +323,11 @@ export default function DamMarketTab({ onGo }: { onGo: (tab: GoTab) => void }) {
 
 /** 건물별로 층을 위에서부터 쌓아 보여 주는 간단한 층별 안내도 */
 function FloorGuide({ layout }: { layout: DamData["layout"] }) {
-  const buildings = [...new Set(layout.map((l) => l.building))];
-  const floorNum = (f: string) => Number(f.match(/\d+/)?.[0] ?? 0);
+  // 지금 쇼핑하는 신관을 맨 앞에, 닫힌 구관은 맨 뒤에
+  const order = (b: string) => (b.includes("신관") ? 0 : b.includes("구관") ? 2 : 1);
+  const buildings = [...new Set(layout.map((l) => l.building))].sort((a, b) => order(a) - order(b));
+  // 층: 안내 → 3층 → 2층 → 1층 → 그 밖
+  const floorNum = (f: string) => (f.includes("안내") ? 100 : Number(f.match(/\d+/)?.[0] ?? 0));
   return (
     <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2">
       {buildings.map((b) => {
@@ -359,7 +386,14 @@ function NearbyMap() {
   return (
     <div className="space-y-3">
       <div className="h-[320px] overflow-hidden rounded-3xl md:h-[400px]">
-        <MapView places={places} highlightIds={places.map((p) => p.id)} paths={[]} selectedPlaceId={selected} onSelectPlace={setSelected} />
+        {/* 이름표는 담시장과 고른 곳만 (전부 띄우면 겹쳐요) */}
+        <MapView
+          places={places}
+          highlightIds={["dam-market", ...(selected && selected !== "dam-market" ? [selected] : [])]}
+          paths={[]}
+          selectedPlaceId={selected}
+          onSelectPlace={setSelected}
+        />
       </div>
       {D.nearby.length > 0 && (
         <ul className={`${card} divide-y divide-line px-5`}>

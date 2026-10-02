@@ -99,11 +99,24 @@ export default function PharmacyTab({ onGo }: { onGo: (tab: GoTab) => void }) {
           <p className="text-[15px] font-semibold text-ink-3">💊 베트남 약국 쇼핑</p>
           <p className="text-[16px] leading-relaxed whitespace-pre-line text-ink">{D.summary}</p>
           {D.safety.length > 0 && (
-            <ul className="space-y-1.5 rounded-2xl bg-danger-soft p-4 text-[14px] leading-relaxed text-ink">
-              {D.safety.map((s, i) => (
-                <li key={i}>⚠️ {s}</li>
-              ))}
-            </ul>
+            <div className="rounded-2xl bg-danger-soft p-4 text-[14px] leading-relaxed text-ink">
+              <p className="mb-1.5 font-bold text-danger">⚠️ 아이(만 3세) 약 주의</p>
+              <ul className="space-y-1.5">
+                {D.safety.slice(0, 2).map((s, i) => (
+                  <li key={i}>• {s}</li>
+                ))}
+              </ul>
+              {D.safety.length > 2 && (
+                <details className="mt-1.5">
+                  <summary className="cursor-pointer font-semibold text-danger">주의 {D.safety.length - 2}개 더 보기</summary>
+                  <ul className="mt-1.5 space-y-1.5">
+                    {D.safety.slice(2).map((s, i) => (
+                      <li key={i}>• {s}</li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
           )}
           <div className="flex flex-wrap gap-2 pt-1">
             <button type="button" className={`${btn.soft} min-h-11 px-4 text-[14px]`} onClick={() => onGo("souvenir")}>
