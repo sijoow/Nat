@@ -22,7 +22,7 @@ interface Props {
 export type GoTab = "desert" | "vintickets" | "kids" | "stays" | "tours" | "food" | "spa" | "map" | "weather" | "schedule";
 
 const SHORTCUTS: { tab: GoTab; label: string; desc: string; photo: () => PhotoInfo | undefined }[] = [
-  { tab: "desert", label: "사막투어 예약", desc: "업체 비교·브리핑", photo: () => activityPhoto("phan-rang-desert") },
+  { tab: "desert", label: "사막투어 (확정)", desc: "HT나트랑 · 당일 안내", photo: () => activityPhoto("phan-rang-desert") },
   { tab: "vintickets", label: "빈원더스 티켓", desc: "구매처 비교·아이 표", photo: () => placePhoto("vinwonders") },
   { tab: "kids", label: "아이랑 갈 곳", desc: "추천·가격·예약", photo: () => refPhoto("kids:capybara") ?? placePhoto("city-hotel-area") },
   { tab: "stays", label: "숙소", desc: "확정 숙소 3곳", photo: () => stayPhoto("movenpick-cam-ranh") ?? placePhoto("cam-ranh-resort-area") },

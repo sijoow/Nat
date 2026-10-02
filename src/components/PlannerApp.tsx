@@ -44,7 +44,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "schedule", label: "일정" },
   { id: "map", label: "지도·이동" },
   { id: "stays", label: "숙소" },
-  { id: "desert", label: "사막투어 예약" },
+  { id: "desert", label: "사막투어 (확정)" },
   { id: "vintickets", label: "빈원더스 티켓" },
   { id: "kids", label: "아이랑 갈 곳" },
   { id: "tours", label: "투어·쇼핑" },
@@ -99,7 +99,7 @@ const BOTTOM_TABS: { id: Tab; label: string; icon: ReactNode }[] = [
 
 // '더보기' 바텀시트에 크게 보여줄 탭
 const MORE_TABS: { id: Tab; emoji: string; label: string; desc: string }[] = [
-  { id: "desert", emoji: "🏜️", label: "사막투어 예약", desc: "10/6 판랑 사막 · 업체 비교 · 예약 브리핑" },
+  { id: "desert", emoji: "🏜️", label: "사막투어 (확정)", desc: "10/6 HT나트랑 확정 · 당일 동선 · 준비물" },
   { id: "vintickets", emoji: "🎢", label: "빈원더스 티켓", desc: "10/5 구매처 비교 · 101cm 아이 표 · 현장 매표소" },
   { id: "kids", emoji: "👶", label: "아이랑 갈 곳", desc: "만 3세 추천 순서 · 10/5 대신 코스 · 엄마·아이 네일" },
   { id: "tours", emoji: "🎟️", label: "투어·쇼핑", desc: "투어 · 기념품 · 아이 옷 · 환전" },
