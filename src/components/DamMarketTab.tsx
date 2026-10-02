@@ -181,10 +181,13 @@ export default function DamMarketTab({ onGo }: { onGo: (tab: GoTab) => void }) {
             {D.shops.map((s) => (
               <article key={s.id} className={`${card} p-5`}>
                 <div className="flex items-start gap-3">
+                  {/* 번호가 길어도 카드 폭의 40%까지만 쓰고 배지 안에서 줄바꿈 (이름 칸이 한 글자씩 세로로 깨지지 않게) */}
                   {s.number && (
-                    <span className="shrink-0 rounded-xl bg-ink px-2.5 py-1.5 text-[15px] font-extrabold text-page tabular-nums">{s.number}</span>
+                    <span className="max-w-[40%] shrink-0 rounded-xl bg-ink px-2.5 py-1.5 text-center text-[15px] leading-tight font-extrabold break-words text-page tabular-nums">
+                      {s.number}
+                    </span>
                   )}
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-[17px] leading-snug font-bold">{s.name}</p>
                     <p className="mt-0.5 text-[13px] text-ink-3">📍 {s.where}</p>
                   </div>
